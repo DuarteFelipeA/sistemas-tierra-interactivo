@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistemas de la Tierra – Interactivo</title>
+  <meta name="description" content="Imagen interactiva de los sistemas de la Tierra con material para el docente y actividades por sistema." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>Sistemas de la Tierra</h1>
+    <p class="subtitle">Atmósfera · Hidrosfera · Geosfera · Biosfera</p>
+  </header>
+
+  <main>
+    <!-- Imagen/SVG interactivo -->
+    <section class="hero" aria-labelledby="titulo-interactivo">
+      <h2 id="titulo-interactivo" class="sr-only">Mapa interactivo de los sistemas de la Tierra</h2>
+      <div class="svg-wrapper" role="img" aria-label="Ilustración interactiva de los sistemas de la Tierra">
+        <!-- SVG con 4 zonas clicables -->
+        <svg viewBox="0 0 800 400" class="earth-svg" aria-hidden="false">
+          <defs>
+            <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+              <stop offset="0%" stop-color="#0d47a1"/>
+              <stop offset="100%" stop-color="#001e3c"/>
+            </radialGradient>
+          </defs>
+          <rect x="0" y="0" width="800" height="400" fill="url(#bg)"/>
+          <text x="400" y="45" text-anchor="middle" fill="#e3f2fd" font-size="22" aria-hidden="true">
+            Haz clic en un sistema
+          </text>
+
+          <g class="hotspot" tabindex="0" role="button" aria-label="Abrir Atmósfera" data-system="atmosfera">
+            <circle cx="170" cy="180" r="80" fill="#4FC3F7" opacity="0.9" />
+            <text x="170" y="185" text-anchor="middle" fill="#002b36" font-size="16" font-weight="700">Atmósfera</text>
+          </g>
+
+          <g class="hotspot" tabindex="0" role="button" aria-label="Abrir Hidrosfera" data-system="hidrosfera">
+            <circle cx="400" cy="180" r="80" fill="#29B6F6" opacity="0.9" />
+            <text x="400" y="185" text-anchor="middle" fill="#002b36" font-size="16" font-weight="700">Hidrosfera</text>
+          </g>
+
+          <g class="hotspot" tabindex="0" role="button" aria-label="Abrir Geosfera" data-system="geosfera">
+            <circle cx="630" cy="180" r="80" fill="#FFCA28" opacity="0.9" />
+            <text x="630" y="185" text-anchor="middle" fill="#3e2723" font-size="16" font-weight="700">Geosfera</text>
+          </g>
+
+          <g class="hotspot" tabindex="0" role="button" aria-label="Abrir Biosfera" data-system="biosfera">
+            <circle cx="400" cy="320" r="60" fill="#66BB6A" opacity="0.95" />
+            <text x="400" y="325" text-anchor="middle" fill="#1b5e20" font-size="16" font-weight="700">Biosfera</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Modal dinámico (contenido inyectado por JS) -->
+    <div id="systemModal" class="modal" aria-hidden="true" aria-labelledby="modalTitle" role="dialog">
+      <div class="modal-content" role="document">
+        <button class="modal-close" aria-label="Cerrar">×</button>
+        <div id="modalBody"></div>
+      </div>
+      <div class="modal-backdrop"></div>
+    </div>
+
+    <!-- Material docente -->
+    <section class="teacher" aria-labelledby="titulo-docente">
+      <h2 id="titulo-docente">Material para el docente</h2>
+      <p>Visualiza o descarga guías y material de apoyo para cada sistema.</p>
+
+      <div class="tabs" role="tablist" aria-label="Material docente">
+        <button role="tab" aria-selected="true" class="tab active" data-tab="pdf-atmosfera">Atmósfera</button>
+        <button role="tab" aria-selected="false" class="tab" data-tab="pdf-hidrosfera">Hidrosfera</button>
+        <button role="tab" aria-selected="false" class="tab" data-tab="pdf-geosfera">Geosfera</button>
+        <button role="tab" aria-selected="false" class="tab" data-tab="pdf-biosfera">Biosfera</button>
+      </div>
+
+      <div class="tab-panels">
+        <div id="pdf-atmosfera" class="tab-panel active" role="tabpanel">
+          <div class="pdf-box">
+            <iframe title="PDF Atmósfera" src="assets/atmosfera.pdf#view=FitH"></iframe>
+          </div>
+          <a class="btn" href="assets/atmosfera.pdf" download>Descargar PDF de Atmósfera</a>
+        </div>
+
+        <div id="pdf-hidrosfera" class="tab-panel" role="tabpanel">
+          <div class="pdf-box">
+            <iframe title="PDF Hidrosfera" src="assets/hidrosfera.pdf#view=FitH"></iframe>
+          </div>
+          <a class="btn" href="assets/hidrosfera.pdf" download>Descargar PDF de Hidrosfera</a>
+        </div>
+
+        <div id="pdf-geosfera" class="tab-panel" role="tabpanel">
+          <div class="pdf-box">
+            <iframe title="PDF Geosfera" src="assets/geosfera.pdf#view=FitH"></iframe>
+          </div>
+          <a class="btn" href="assets/geosfera.pdf" download>Descargar PDF de Geosfera</a>
+        </div>
+
+        <div id="pdf-biosfera" class="tab-panel" role="tabpanel">
+          <div class="pdf-box">
+            <iframe title="PDF Biosfera" src="assets/biosfera.pdf#view=FitH"></iframe>
+          </div>
+          <a class="btn" href="assets/biosfera.pdf" download>Descargar PDF de Biosfera</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>© <span id="year"></span> Proyecto educativo • Sistemas de la Tierra</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
