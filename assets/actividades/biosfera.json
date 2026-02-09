@@ -1,0 +1,19 @@
+[
+  {
+    "type": "truefalse",
+    "titulo": "Biodiversidad",
+    "afirmacion": "La biodiversidad solo se refiere al número de especies.",
+    "correcta": false
+  },
+  {
+    "type": "order",
+    "titulo": "Flujo de energía",
+    "descripcion": "Ordena el flujo típico de energía en un ecosistema.",
+    "pasos": [
+      "Productores",
+      "Consumidores primarios",
+      "Consumidores secundarios",
+      "Descomponedores"
+    ]
+  }
+]

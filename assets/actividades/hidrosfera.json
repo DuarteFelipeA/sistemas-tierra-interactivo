@@ -1,0 +1,32 @@
+[
+  {
+    "type": "order",
+    "titulo": "Ciclo del agua",
+    "descripcion": "Ordena las etapas principales del ciclo del agua.",
+    "pasos": [
+      "Evaporación",
+      "Condensación",
+      "Precipitación",
+      "Escorrentía/Infiltración"
+    ]
+  },
+  {
+    "type": "multiple",
+    "titulo": "Aguas subterráneas",
+    "pregunta": "Los acuíferos se ubican en...",
+    "opciones": [
+      {
+        "texto": "La superficie del océano",
+        "correcta": false
+      },
+      {
+        "texto": "Capas de roca y sedimentos bajo tierra",
+        "correcta": true
+      },
+      {
+        "texto": "La atmósfera",
+        "correcta": false
+      }
+    ]
+  }
+]

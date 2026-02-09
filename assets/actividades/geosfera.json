@@ -1,0 +1,21 @@
+[
+  {
+    "type": "multiple",
+    "titulo": "Tectónica de placas",
+    "pregunta": "¿Qué proceso forma montañas en límites convergentes?",
+    "opciones": [
+      {
+        "texto": "Subducción y compresión",
+        "correcta": true
+      },
+      {
+        "texto": "Expansión del fondo oceánico",
+        "correcta": false
+      },
+      {
+        "texto": "Deriva continental por vientos",
+        "correcta": false
+      }
+    ]
+  }
+]
