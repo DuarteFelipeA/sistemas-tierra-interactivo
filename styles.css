@@ -74,3 +74,16 @@ p{line-height:1.6}
 .activity a{color:#8dd8ff}
 
 .site-footer{padding:1rem;text-align:center;color:var(--muted)}
+
+.modal-content{
+  position: relative; /* ya lo tenés, lo mantenemos */
+  z-index: 2;         /* por encima del backdrop */
+}
+
+.modal-backdrop{
+  position: absolute; /* ya lo tenés, lo mantenemos */
+  inset: 0;           /* ya lo tenés, lo mantenemos */
+  z-index: 1;         /* detrás del contenido */
+}
+``
+
