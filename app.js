@@ -68,7 +68,7 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
     lockAndDisable(sysId, idPath, ui, feedbackEl);
   };
 
-  // ---------- Opción múltiple ----------
+  // multiple
   if (act.type === 'multiple') {
     const group = `g_${Math.random().toString(36).slice(2)}`;
     const html = [`<div class="quiz"><p><strong>${act.pregunta||'Pregunta'}</strong></p>`];
@@ -88,7 +88,7 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
       finalize(correct, feedback);
     });
   }
-  // ---------- Verdadero / Falso ----------
+  // truefalse
   else if (act.type === 'truefalse') {
     ui.innerHTML = `<p><strong>${act.afirmacion||'Afirmación'}</strong></p><div class="truefalse"><button data-v="true">Verdadero</button><button data-v="false">Falso</button></div><div class="form-actions"><button class="primary" data-check>Comprobar</button></div><div class="feedback" aria-live="polite"></div>`;
     let sel = null;
@@ -105,7 +105,7 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
       finalize(correct, fb);
     });
   }
-  // ---------- Ordenar pasos ----------
+  // order
   else if (act.type === 'order') {
     const correctOrder = (act.pasos||[]).slice();
     const shuffled = (act.pasos||[]).slice().sort(()=>Math.random()-0.5);
@@ -131,7 +131,7 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
       finalize(ok, fb);
     });
   }
-  // ---------- Emparejar (match) ----------
+  // match
   else if (act.type === 'match') {
     const left = (act.pares||[]).map(p=>p.a);
     const right = (act.pares||[]).map(p=>p.b);
@@ -155,13 +155,13 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
       finalize(ok, fb);
     });
   }
-  // ---------- Completar espacios (cloze) ----------
+  // cloze
   else if (act.type === 'cloze') {
     const raw = act.texto||'';
     let idxBlank = 0; const answers = [];
     const html = raw.replace(/\{\{([^}]+)\}\}/g, (m,grp)=>{
       const opts = grp.split('|').map(s=>s.trim()); answers.push(opts);
-      const i = idxBlank++; return `<input type="text" data-i="${i}" placeholder="Respuesta" />`;
+      const i = idxBlank++; return `<input type=\"text\" data-i=\"${i}\" placeholder=\"Respuesta\" />`;
     });
     ui.innerHTML = `<div class="cloze"><p>${html}</p></div><div class="form-actions"><button class="primary" data-check>Comprobar</button></div><div class="feedback" aria-live="polite"></div>`;
     const fb = qs('.feedback', ui);
@@ -174,7 +174,7 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
       finalize(ok, fb);
     });
   }
-  // ---------- Arrastrar a zonas (hotspots) ----------
+  // hotspots
   else if (act.type === 'hotspots') {
     const img = act.imagen; const zones = (act.zones||[]); const labels = (act.labels||[]);
     const cont = document.createElement('div'); cont.className='hotspots'; cont.style.width = '100%';
@@ -185,8 +185,7 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
     });
     labels.forEach((lab, i)=>{
       const tag = document.createElement('div'); tag.className='label'; tag.textContent=lab; tag.setAttribute('draggable','true');
-      tag.style.left = (4 + i*12) + '%'; tag.style.top = '85%';
-      cont.appendChild(tag);
+      tag.style.left = (4 + i*12) + '%'; tag.style.top = '85%'; cont.appendChild(tag);
     });
     let drag=null; cont.addEventListener('dragstart', e=>{ const el=e.target.closest('.label'); if(!el) return; drag=el; e.dataTransfer.effectAllowed='move'; });
     cont.addEventListener('dragover', e=>{ e.preventDefault(); });
@@ -209,14 +208,14 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
     };
     qs('[data-check]', ui).addEventListener('click', check);
   }
-  // ---------- Banco de preguntas (aleatorio + puntaje + bloqueo) ----------
+  // bank
   else if (act.type === 'bank') {
     const n = Math.min(act.n||3, (act.items||[]).length);
     const shuffled = (act.items||[]).slice().sort(()=>Math.random()-0.5).slice(0,n);
     ui.innerHTML = `<div class="bank"></div><div class="form-actions"><button class="primary" data-check>Comprobar todo</button></div><div class="feedback" aria-live="polite"></div>`;
     const host = qs('.bank', ui);
     const fb = qs('.feedback', ui);
-    const idPath = `${idPrefix}:${idx}`; // para hijos
+    const idPath = `${idPrefix}:${idx}`;
 
     shuffled.forEach((sub,i)=>{
       const subCard = renderActivityCard(sub, i, sysId, `${idPath}`);
@@ -260,28 +259,7 @@ function openModalFor(systemId){
   modalEl.setAttribute('aria-hidden', 'false');
 
   modalBody.innerHTML = `
-    <header class="modal-header">
-      <img src="${sys.imagen}" alt="${sys.nombre}" />
-      <div>
-        <h3 id="modalTitle" class="modal-title" style="color:${sys.color}">${sys.nombre}</h3>
-        <div class="chips">${sys.chips.map(c => `<span class=\"chip\">${c}</span>`).join('')}</div>
-      </div>
-    </header>
-    <div class="modal-tabs" role="tablist">
-      <button role="tab" class="modal-tab active" aria-selected="true" data-panel="info">Información</button>
-      <button role="tab" class="modal-tab" aria-selected="false" data-panel="actividades">Actividades</button>
-      <a class="btn" target="_blank" rel="noopener" href="${sys.pdf}">PDF del sistema ↗</a>
-    </div>
-
-    <section id="panel-info" class="modal-panel active" role="tabpanel" aria-label="Información">
-      <div class="subsystems">
-        ${sys.subsistemas.map(sbs => `<article class=\"card\"><h4>${sbs.titulo}</h4><p>${sbs.texto}</p></article>`).join('')}
-      </div>
-    </section>
-
-    <section id="panel-actividades" class="modal-panel" role="tabpanel" aria-label="Actividades">
-      <div id="activityList" class="activity-list" aria-live="polite"></div>
-    </section>`;
+    <header class=\"modal-header\">\n      <img src=\"${sys.imagen}\" alt=\"${sys.nombre}\" />\n      <div>\n        <h3 id=\"modalTitle\" class=\"modal-title\" style=\"color:${sys.color}\">${sys.nombre}</h3>\n        <div class=\"chips\">${sys.chips.map(c => `<span class=\\\"chip\\\">${c}</span>`).join('')}</div>\n      </div>\n    </header>\n    <div class=\"modal-tabs\" role=\"tablist\">\n      <button role=\"tab\" class=\"modal-tab active\" aria-selected=\"true\" data-panel=\"info\">Información</button>\n      <button role=\"tab\" class=\"modal-tab\" aria-selected=\"false\" data-panel=\"actividades\">Actividades</button>\n      <a class=\"btn\" target=\"_blank\" rel=\"noopener\" href=\"${sys.pdf}\">PDF del sistema ↗</a>\n    </div>\n\n    <section id=\"panel-info\" class=\"modal-panel active\" role=\"tabpanel\" aria-label=\"Información\">\n      <div class=\"subsystems\">\n        ${sys.subsistemas.map(sbs => `<article class=\\\"card\\\"><h4>${sbs.titulo}</h4><p>${sbs.texto}</p></article>`).join('')}\n      </div>\n    </section>\n\n    <section id=\"panel-actividades\" class=\"modal-panel\" role=\"tabpanel\" aria-label=\"Actividades\">\n      <div id=\"activityList\" class=\"activity-list\" aria-live=\"polite\"></div>\n    </section>`;
 
   qsa('.modal-tab[role="tab"]', modalBody).forEach(btn => {
     const panel = btn.getAttribute('data-panel');
@@ -303,11 +281,13 @@ qs('.modal-backdrop').addEventListener('click', closeModal);
 modalCloseBtn.addEventListener('click', closeModal);
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modalEl.getAttribute('aria-hidden')==='false'){ closeModal(); }});
 
+// Hotspots (ya sea círculos o polígonos del cono)
 qsa('.hotspot').forEach(h => {
   h.addEventListener('click', () => openModalFor(h.getAttribute('data-system')));
   h.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openModalFor(h.getAttribute('data-system')); }});
 });
 
+// Tabs de Material docente
 qsa('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     qsa('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });

@@ -1,24 +1,30 @@
-# Sistemas de la Tierra – Interactivo (JSON extendido, **modo intento único**)
+# Sistemas de la Tierra – Interactivo (cono + JSON extendido, intento único)
 
-Este paquete incluye **todos los tipos de actividades** y **bloqueo tras el primer intento**:
+Este paquete presenta los sistemas de la Tierra como **segmentos de un cono** (desde el centro hasta el espacio) y carga **actividades** desde archivos **JSON**. Incluye **todos los tipos** y **bloqueo tras el primer intento**.
 
-**Tipos soportados**: `multiple`, `truefalse`, `order`, `match`, `cloze`, `hotspots`, `bank`.
+## Tipos de actividades soportados
+- `multiple` (opción múltiple)
+- `truefalse` (verdadero/falso)
+- `order` (ordenar pasos con arrastrar/soltar)
+- `match` (emparejar con select)
+- `cloze` (completar espacios con `{{respuesta|alternativa}}`)
+- `hotspots` (arrastrar etiquetas a zonas sobre una imagen)
+- `bank` (banco de preguntas aleatorio con puntaje)
 
-**Intento único**: al presionar **Comprobar**, se registra la resolución en `localStorage` con clave `act_lock::<sistema>::<ruta>` y la interfaz queda **deshabilitada** (sin botón Reiniciar). Al reabrir, se muestra **"Intento ya realizado"**.
+## Intento único
+Al presionar **Comprobar**, la actividad queda **bloqueada** para ese navegador (usa `localStorage` con claves `act_lock::<sistema>::<ruta>`). No hay botón **Reiniciar**.
 
-> Nota: el bloqueo es por **navegador/dispositivo** (localStorage). Para permitir nuevos intentos, el docente puede borrar el almacenamiento del sitio o modificar el índice/orden de las actividades en el JSON (cambia la clave lógica).
-
-## Publicación rápida (GitHub Pages)
-1) Sube todos los archivos a la raíz del repositorio.  
-2) **Settings → Pages**: `Deploy from a branch` → `main` → `/ (root)`.  
-3) Espera 1–2 minutos y abre la URL de Pages.
+## Publicación (GitHub Pages)
+1. Sube todo a la **raíz** del repositorio.  
+2. En **Settings → Pages**: `Deploy from a branch` → `main` → `/ (root)`.  
+3. Espera 1–2 minutos y prueba la URL.
 
 ## Estructura
 ```
 .
-├─ index.html
+├─ index.html               (SVG del cono con segmentos clicables)
 ├─ styles.css
-├─ app.js
+├─ app.js                   (render de actividades + intento único)
 └─ assets/
    ├─ atmosfera.jpg  | atmosfera.pdf
    ├─ hidrosfera.jpg | hidrosfera.pdf
@@ -32,11 +38,13 @@ Este paquete incluye **todos los tipos de actividades** y **bloqueo tras el prim
       └─ biosfera.json
 ```
 
-## Formatos JSON (resumen)
-- **multiple**: `pregunta`, `opciones:[{texto,correcta}]`  
-- **truefalse**: `afirmacion`, `correcta:true/false`  
-- **order**: `pasos:[...]`  
-- **match**: `pares:[{a,b},...]`  
-- **cloze**: `texto:"... {{respuesta|alternativa}} ..."`  
-- **hotspots**: `imagen`, `zones:[{x,y,w,h,label}]` en **%**, `labels:[...]`  
-- **bank**: `n`, `items:[actividades mixtas]`  
+## Ajustar los grosores de los segmentos del cono
+En `index.html`, modifica las coordenadas **Y** de los puntos de cada polígono. Referencia:
+- Vértice: `yApex = 360`
+- Tope: `yTop = 40`
+- Límites intermedios (ejemplo): `yH2O = 232`, `yBio = 240`, `yGeo = 255`
+Laterales (para `viewBox 800×420`):  
+`xLeft(y) = 300 + 0.3125*(y-40)`  ·  `xRight(y) = 500 - 0.3125*(y-40)`
+
+## Nota
+El bloqueo es local al navegador/dispositivo. Para “reabrir” intentos de forma masiva, borra datos del sitio o cambia el orden/índice de actividades en el JSON (altera la clave lógica).
