@@ -1,19 +1,26 @@
 [
   {
-    "type": "truefalse",
-    "titulo": "Biodiversidad",
-    "afirmacion": "La biodiversidad solo se refiere al número de especies.",
-    "correcta": false
+    "type": "cloze",
+    "titulo": "Flujo de energía",
+    "texto": "La energía fluye desde los {{productores|autótrofos}} hacia los {{consumidores}} y finalmente a los {{descomponedores|desintegradores}}."
   },
   {
-    "type": "order",
-    "titulo": "Flujo de energía",
-    "descripcion": "Ordena el flujo típico de energía en un ecosistema.",
-    "pasos": [
-      "Productores",
-      "Consumidores primarios",
-      "Consumidores secundarios",
-      "Descomponedores"
+    "type": "multiple",
+    "titulo": "Biomas",
+    "pregunta": "¿Cuál de estos es un bioma frío con permafrost?",
+    "opciones": [
+      {
+        "texto": "Sabana",
+        "correcta": false
+      },
+      {
+        "texto": "Tundra",
+        "correcta": true
+      },
+      {
+        "texto": "Selva tropical",
+        "correcta": false
+      }
     ]
   }
 ]

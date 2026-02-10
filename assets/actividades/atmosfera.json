@@ -28,5 +28,10 @@
     "titulo": "Ozono",
     "afirmacion": "La capa de ozono se encuentra principalmente en la estratosfera.",
     "correcta": true
+  },
+  {
+    "type": "cloze",
+    "titulo": "Balance energético",
+    "texto": "La atmósfera regula la {{temperatura|temp}} terrestre mediante el {{efecto invernadero|efecto de invernadero}}."
   }
 ]

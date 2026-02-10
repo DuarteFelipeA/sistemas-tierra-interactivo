@@ -1,3 +1,9 @@
+// ====== Utils ======
+const qs  = (s, el=document) => el.querySelector(s);
+const qsa = (s, el=document) => [...el.querySelectorAll(s)];
+const norm = (str) => (str||'').toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const lockKey = (sysId, idPath) => `act_lock::${sysId}::${idPath}`;
+
 // ====== Datos base de los sistemas ======
 const SYSTEMS = [
   {id:'atmosfera',nombre:'Atmósfera',color:'#4FC3F7',imagen:'assets/atmosfera.jpg',pdf:'assets/atmosfera.pdf',chips:['Troposfera','Estratosfera','Mesosfera','Termosfera','Exosfera'],subsistemas:[{titulo:'Troposfera',texto:'Capa más baja, donde ocurre el clima y se concentra el vapor de agua.'},{titulo:'Estratosfera',texto:'Contiene la capa de ozono, filtra radiación UV.'},{titulo:'Mesosfera',texto:'Quema la mayoría de meteoros; temperaturas muy bajas.'},{titulo:'Termosfera',texto:'Alta energía solar; auroras y órbitas de satélites bajos.'},{titulo:'Exosfera',texto:'Transición al espacio; gases muy dispersos.'}]},
@@ -5,10 +11,6 @@ const SYSTEMS = [
   {id:'geosfera',nombre:'Geosfera',color:'#FFCA28',imagen:'assets/geosfera.jpg',pdf:'assets/geosfera.pdf',chips:['Corteza','Manto','Núcleo','Tectónica de placas','Relieve'],subsistemas:[{titulo:'Corteza',texto:'Capa sólida superficial; continental y oceánica.'},{titulo:'Manto',texto:'Rocoso y convectivo; impulsa el movimiento de placas.'},{titulo:'Núcleo',texto:'Externo líquido e interno sólido; genera campo magnético.'},{titulo:'Tectónica de placas',texto:'Sismicidad, vulcanismo y formación de montañas.'},{titulo:'Relieve',texto:'Modelado por procesos internos y externos (erosión, sedimentación).'}]},
   {id:'biosfera',nombre:'Biosfera',color:'#66BB6A',imagen:'assets/biosfera.jpg',pdf:'assets/biosfera.pdf',chips:['Ecosistemas','Biomas','Biodiversidad','Ciclos biogeoquímicos'],subsistemas:[{titulo:'Ecosistemas',texto:'Interacciones entre seres vivos y ambiente físico.'},{titulo:'Biomas',texto:'Grandes regiones con clima y comunidades típicas (bosque, desierto, tundra).'},{titulo:'Biodiversidad',texto:'Variedad genética, de especies y ecosistemas; base de resiliencia.'},{titulo:'Ciclos biogeoquímicos',texto:'Ciclos del carbono, nitrógeno, fósforo; conectan todos los sistemas.'}]}
 ];
-
-// ====== Utils ======
-const qs = (s, el=document) => el.querySelector(s);
-const qsa = (s, el=document) => [...el.querySelectorAll(s)];
 
 // ====== Modal ======
 const modalEl = qs('#systemModal');
@@ -34,21 +36,47 @@ async function loadActivities(systemId){
   }
 }
 
-// ====== Render de actividad (solo ejecución) ======
-function renderActivityCard(act, idx){
+function disableAllInteractive(ui){
+  qsa('input,button,select,textarea', ui).forEach(el=>{
+    if(el.getAttribute('data-keep')==='1') return;
+    el.disabled = true; el.classList.add('disabled');
+  });
+}
+
+function lockAndDisable(sysId, idPath, ui, feedback){
+  localStorage.setItem(lockKey(sysId, idPath), '1');
+  if(feedback){
+    feedback.textContent += ' · (Intento registrado)';
+  }
+  disableAllInteractive(ui);
+  qsa('[data-reset]', ui).forEach(b=> b.style.display='none');
+}
+
+// ====== Render de actividad (intento único) ======
+function renderActivityCard(act, idx, sysId, idPrefix='act'){
+  const idPath = `${idPrefix}:${idx}`;
+  const locked = localStorage.getItem(lockKey(sysId, idPath))==='1';
+
   const wrap = document.createElement('div');
   wrap.className = 'activity';
   wrap.innerHTML = `<h5>${act.titulo || 'Actividad'}</h5>${act.descripcion?`<p>${act.descripcion}</p>`:''}<div class="activity-ui"></div>`;
   const ui = qs('.activity-ui', wrap);
 
+  const finalize = (ok, feedbackEl)=>{
+    feedbackEl.textContent = ok ? '✔ ¡Correcto!' : '✘ No es correcto';
+    feedbackEl.className = 'feedback ' + (ok?'ok':'err');
+    lockAndDisable(sysId, idPath, ui, feedbackEl);
+  };
+
+  // ---------- Opción múltiple ----------
   if (act.type === 'multiple') {
-    const group = `g_${idx}_${Math.random().toString(36).slice(2)}`;
+    const group = `g_${Math.random().toString(36).slice(2)}`;
     const html = [`<div class="quiz"><p><strong>${act.pregunta||'Pregunta'}</strong></p>`];
     (act.opciones||[]).forEach((op,i)=>{
       const o = (typeof op === 'string') ? {texto: op, correcta:false} : op;
       html.push(`<label class="option"><input type="radio" name="${group}" value="${i}"><span>${o.texto}</span></label>`);
     });
-    html.push(`<div class="form-actions"><button class="primary" data-check>Comprobar</button><button class="secondary" data-reset>Reiniciar</button></div><div class="feedback" aria-live="polite"></div></div>`);
+    html.push(`<div class="form-actions"><button class="primary" data-check>Comprobar</button></div><div class="feedback" aria-live="polite"></div></div>`);
     ui.innerHTML = html.join('');
     const feedback = qs('.feedback', ui);
     qs('[data-check]', ui).addEventListener('click', ()=>{
@@ -57,16 +85,12 @@ function renderActivityCard(act, idx){
       const i = Number(sel.value);
       const opt = act.opciones[i] || {};
       const correct = (typeof opt === 'object' && opt.correcta === true);
-      feedback.textContent = correct ? '✔ ¡Correcto!' : '✘ No es correcto';
-      feedback.className = 'feedback ' + (correct?'ok':'err');
-    });
-    qs('[data-reset]', ui).addEventListener('click', ()=>{
-      ui.querySelectorAll(`input[name="${group}"]`).forEach(r=> r.checked=false);
-      feedback.textContent=''; feedback.className='feedback';
+      finalize(correct, feedback);
     });
   }
+  // ---------- Verdadero / Falso ----------
   else if (act.type === 'truefalse') {
-    ui.innerHTML = `<p><strong>${act.afirmacion||'Afirmación'}</strong></p><div class="truefalse"><button data-v="true">Verdadero</button><button data-v="false">Falso</button></div><div class="form-actions"><button class="primary" data-check>Comprobar</button><button class="secondary" data-reset>Reiniciar</button></div><div class="feedback" aria-live="polite"></div>`;
+    ui.innerHTML = `<p><strong>${act.afirmacion||'Afirmación'}</strong></p><div class="truefalse"><button data-v="true">Verdadero</button><button data-v="false">Falso</button></div><div class="form-actions"><button class="primary" data-check>Comprobar</button></div><div class="feedback" aria-live="polite"></div>`;
     let sel = null;
     qsa('.truefalse button', ui).forEach(b=>{
       b.addEventListener('click', ()=>{
@@ -78,11 +102,10 @@ function renderActivityCard(act, idx){
     qs('[data-check]', ui).addEventListener('click', ()=>{
       if(sel===null){ fb.textContent='Selecciona Verdadero o Falso'; fb.className='feedback'; return; }
       const correct = (act.correcta === true) === (sel === true);
-      fb.textContent = correct ? '✔ ¡Correcto!' : '✘ No es correcto';
-      fb.className = 'feedback ' + (correct?'ok':'err');
+      finalize(correct, fb);
     });
-    qs('[data-reset]', ui).addEventListener('click', ()=>{ sel=null; qsa('.truefalse button', ui).forEach(x=>x.classList.remove('active')); fb.textContent=''; fb.className='feedback'; });
   }
+  // ---------- Ordenar pasos ----------
   else if (act.type === 'order') {
     const correctOrder = (act.pasos||[]).slice();
     const shuffled = (act.pasos||[]).slice().sort(()=>Math.random()-0.5);
@@ -99,19 +122,126 @@ function renderActivityCard(act, idx){
     ul.addEventListener('dragover', e=>{ e.preventDefault(); const li=e.target.closest('li'); if(!li||li===dragEl) return; const rect = li.getBoundingClientRect(); const after = (e.clientY - rect.top) > rect.height/2; ul.insertBefore(dragEl, after? li.nextSibling : li); });
     ul.addEventListener('drop', e=>{ e.preventDefault(); dragEl=null; });
     const controls = document.createElement('div'); controls.className='order-controls';
-    controls.innerHTML = `<button class="primary" data-check>Comprobar</button><button class="secondary" data-reset>Reiniciar</button><div class="feedback" aria-live="polite"></div>`;
+    controls.innerHTML = `<button class="primary" data-check>Comprobar</button><div class="feedback" aria-live="polite"></div>`;
     ui.appendChild(controls);
     const fb = qs('.feedback', controls);
     qs('[data-check]', controls).addEventListener('click', ()=>{
       const current = [...ul.querySelectorAll('li span')].map(s=>s.textContent);
       const ok = current.length===correctOrder.length && current.every((t,i)=>t===correctOrder[i]);
-      fb.textContent = ok ? '✔ ¡Orden correcto!' : '✘ El orden no es correcto';
-      fb.className='feedback ' + (ok?'ok':'err');
-    });
-    qs('[data-reset]', controls).addEventListener('click', ()=>{
-      ul.innerHTML=''; shuffled.sort(()=>Math.random()-0.5).forEach(txt=>{ const li=document.createElement('li'); li.setAttribute('draggable','true'); li.innerHTML=`<button class="order-handle" title="Arrastrar">☰</button> <span>${txt}</span>`; ul.appendChild(li); }); fb.textContent=''; fb.className='feedback';
+      finalize(ok, fb);
     });
   }
+  // ---------- Emparejar (match) ----------
+  else if (act.type === 'match') {
+    const left = (act.pares||[]).map(p=>p.a);
+    const right = (act.pares||[]).map(p=>p.b);
+    const shuffled = right.slice().sort(()=>Math.random()-0.5);
+    ui.innerHTML = `<div class="match"><div class="left"></div><div class="right"></div></div><div class="form-actions"><button class="primary" data-check>Comprobar</button></div><div class="feedback" aria-live="polite"></div>`;
+    const leftCol = qs('.match .left', ui);
+    const rightCol = qs('.match .right', ui);
+    left.forEach((a,i)=>{
+      const row = document.createElement('div'); row.className='row';
+      const sel = document.createElement('select');
+      sel.innerHTML = `<option value="">— Elegir —</option>` + shuffled.map((b,j)=>`<option value="${j}">${b}</option>`).join('');
+      row.innerHTML = `<strong>${a}</strong>`; row.appendChild(sel); leftCol.appendChild(row);
+    });
+    shuffled.forEach((b)=>{ const r=document.createElement('div'); r.className='row'; r.textContent=b; rightCol.appendChild(r); });
+    const fb = qs('.feedback', ui);
+    qs('[data-check]', ui).addEventListener('click', ()=>{
+      let ok=true; leftCol.querySelectorAll('select').forEach((sel,i)=>{
+        const idx = Number(sel.value); if(Number.isNaN(idx)) { ok=false; return; }
+        const chosen = shuffled[idx]; if(norm(chosen)!==norm(right[i])) ok=false;
+      });
+      finalize(ok, fb);
+    });
+  }
+  // ---------- Completar espacios (cloze) ----------
+  else if (act.type === 'cloze') {
+    const raw = act.texto||'';
+    let idxBlank = 0; const answers = [];
+    const html = raw.replace(/\{\{([^}]+)\}\}/g, (m,grp)=>{
+      const opts = grp.split('|').map(s=>s.trim()); answers.push(opts);
+      const i = idxBlank++; return `<input type="text" data-i="${i}" placeholder="Respuesta" />`;
+    });
+    ui.innerHTML = `<div class="cloze"><p>${html}</p></div><div class="form-actions"><button class="primary" data-check>Comprobar</button></div><div class="feedback" aria-live="polite"></div>`;
+    const fb = qs('.feedback', ui);
+    qs('[data-check]', ui).addEventListener('click', ()=>{
+      const inputs = qsa('input[type=text]', ui); let ok=true; inputs.forEach(inp=>{
+        const i = Number(inp.getAttribute('data-i')); const val = norm(inp.value);
+        const okAny = (answers[i]||[]).some(ans=> norm(ans)===val);
+        if(!okAny) ok=false;
+      });
+      finalize(ok, fb);
+    });
+  }
+  // ---------- Arrastrar a zonas (hotspots) ----------
+  else if (act.type === 'hotspots') {
+    const img = act.imagen; const zones = (act.zones||[]); const labels = (act.labels||[]);
+    const cont = document.createElement('div'); cont.className='hotspots'; cont.style.width = '100%';
+    const imgEl = document.createElement('img'); imgEl.src = img; cont.appendChild(imgEl);
+    ui.appendChild(cont);
+    zones.forEach(z=>{
+      const d = document.createElement('div'); d.className='zone'; d.style.left=z.x+'%'; d.style.top=z.y+'%'; d.style.width=z.w+'%'; d.style.height=z.h+'%'; d.dataset.id=z.id; cont.appendChild(d);
+    });
+    labels.forEach((lab, i)=>{
+      const tag = document.createElement('div'); tag.className='label'; tag.textContent=lab; tag.setAttribute('draggable','true');
+      tag.style.left = (4 + i*12) + '%'; tag.style.top = '85%';
+      cont.appendChild(tag);
+    });
+    let drag=null; cont.addEventListener('dragstart', e=>{ const el=e.target.closest('.label'); if(!el) return; drag=el; e.dataTransfer.effectAllowed='move'; });
+    cont.addEventListener('dragover', e=>{ e.preventDefault(); });
+    cont.addEventListener('drop', e=>{ e.preventDefault(); if(!drag) return; const rect = cont.getBoundingClientRect(); const x = ((e.clientX-rect.left)/rect.width)*100; const y = ((e.clientY-rect.top)/rect.height)*100; drag.style.left = x+'%'; drag.style.top=y+'%'; drag.classList.add('assigned'); drag=null; });
+    ui.innerHTML += `<div class="hotspots-controls"><button class="primary" data-check>Comprobar</button></div><div class="feedback" aria-live="polite"></div>`;
+    const fb = qs('.feedback', ui);
+    const check = ()=>{
+      const ok = zones.every(z=>{
+        const zr = {x:z.x,y:z.y,w:z.w,h:z.h};
+        const labelsEls = qsa('.label', cont);
+        for(const el of labelsEls){
+          const left = parseFloat(el.style.left||'0');
+          const top = parseFloat(el.style.top||'0');
+          const inside = (left>=zr.x && left<=zr.x+zr.w && top>=zr.y && top<=zr.y+zr.h);
+          if(inside && norm(el.textContent)===norm(z.label)) return true;
+        }
+        return false;
+      });
+      finalize(ok, fb);
+    };
+    qs('[data-check]', ui).addEventListener('click', check);
+  }
+  // ---------- Banco de preguntas (aleatorio + puntaje + bloqueo) ----------
+  else if (act.type === 'bank') {
+    const n = Math.min(act.n||3, (act.items||[]).length);
+    const shuffled = (act.items||[]).slice().sort(()=>Math.random()-0.5).slice(0,n);
+    ui.innerHTML = `<div class="bank"></div><div class="form-actions"><button class="primary" data-check>Comprobar todo</button></div><div class="feedback" aria-live="polite"></div>`;
+    const host = qs('.bank', ui);
+    const fb = qs('.feedback', ui);
+    const idPath = `${idPrefix}:${idx}`; // para hijos
+
+    shuffled.forEach((sub,i)=>{
+      const subCard = renderActivityCard(sub, i, sysId, `${idPath}`);
+      host.appendChild(subCard);
+    });
+
+    qs('[data-check]', ui).addEventListener('click', ()=>{
+      let total=0, correct=0; const cards = qsa('.bank > .activity', ui);
+      cards.forEach(card=>{
+        total++;
+        const ui2 = qs('.activity-ui', card);
+        const fbs = ui2.querySelector('.feedback');
+        if(!fbs){ const btn = ui2.querySelector('[data-check]'); btn && btn.click(); }
+      });
+      qsa('.bank > .activity .feedback', ui).forEach(f=>{ if(f.classList.contains('ok')) correct++; });
+      fb.textContent = `Resultado: ${correct}/${total} correctas · (Intento registrado)`; fb.className = 'feedback ' + (correct===total?'ok':'err');
+      lockAndDisable(sysId, idPath, ui, fb);
+    });
+  }
+
+  if(locked){
+    disableAllInteractive(ui);
+    const info = document.createElement('div'); info.className='feedback'; info.textContent='Intento ya realizado'; ui.appendChild(info);
+  }
+
   return wrap;
 }
 
@@ -121,10 +251,9 @@ async function renderActivitiesFor(systemId){
   const acts = await loadActivities(systemId);
   if(acts.length===0){ cont.innerHTML = '<p>No hay actividades cargadas para este sistema.</p>'; return; }
   cont.innerHTML = '';
-  acts.forEach((a,i)=> cont.appendChild(renderActivityCard(a,i)) );
+  acts.forEach((a,i)=> cont.appendChild(renderActivityCard(a,i,systemId)) );
 }
 
-// ====== Modal principal ======
 function openModalFor(systemId){
   const sys = SYSTEMS.find(s => s.id === systemId);
   if(!sys) return;
@@ -135,7 +264,7 @@ function openModalFor(systemId){
       <img src="${sys.imagen}" alt="${sys.nombre}" />
       <div>
         <h3 id="modalTitle" class="modal-title" style="color:${sys.color}">${sys.nombre}</h3>
-        <div class="chips">${sys.chips.map(c => `<span class="chip">${c}</span>`).join('')}</div>
+        <div class="chips">${sys.chips.map(c => `<span class=\"chip\">${c}</span>`).join('')}</div>
       </div>
     </header>
     <div class="modal-tabs" role="tablist">
@@ -146,7 +275,7 @@ function openModalFor(systemId){
 
     <section id="panel-info" class="modal-panel active" role="tabpanel" aria-label="Información">
       <div class="subsystems">
-        ${sys.subsistemas.map(sbs => `<article class="card"><h4>${sbs.titulo}</h4><p>${sbs.texto}</p></article>`).join('')}
+        ${sys.subsistemas.map(sbs => `<article class=\"card\"><h4>${sbs.titulo}</h4><p>${sbs.texto}</p></article>`).join('')}
       </div>
     </section>
 
@@ -154,7 +283,6 @@ function openModalFor(systemId){
       <div id="activityList" class="activity-list" aria-live="polite"></div>
     </section>`;
 
-  // Tabs del modal
   qsa('.modal-tab[role="tab"]', modalBody).forEach(btn => {
     const panel = btn.getAttribute('data-panel');
     btn.addEventListener('click', () => {
@@ -167,23 +295,19 @@ function openModalFor(systemId){
     });
   });
 
-  // Render inicial de actividades
   renderActivitiesFor(systemId);
 }
 
-// ====== Cerrar modal ======
 function closeModal(){ modalEl.setAttribute('aria-hidden','true'); qs('#modalBody').innerHTML=''; }
 qs('.modal-backdrop').addEventListener('click', closeModal);
 modalCloseBtn.addEventListener('click', closeModal);
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modalEl.getAttribute('aria-hidden')==='false'){ closeModal(); }});
 
-// ====== Hotspots del SVG ======
 qsa('.hotspot').forEach(h => {
   h.addEventListener('click', () => openModalFor(h.getAttribute('data-system')));
   h.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openModalFor(h.getAttribute('data-system')); }});
 });
 
-// ====== Tabs de Material docente ======
 qsa('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     qsa('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });

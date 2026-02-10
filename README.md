@@ -1,6 +1,17 @@
-# Sistemas de la Tierra – Interactivo (actividades en JSON)
+# Sistemas de la Tierra – Interactivo (JSON extendido, **modo intento único**)
 
-Este proyecto carga **actividades interactivas** desde archivos **JSON** por sistema (pensado para GitHub Pages, sin backend).
+Este paquete incluye **todos los tipos de actividades** y **bloqueo tras el primer intento**:
+
+**Tipos soportados**: `multiple`, `truefalse`, `order`, `match`, `cloze`, `hotspots`, `bank`.
+
+**Intento único**: al presionar **Comprobar**, se registra la resolución en `localStorage` con clave `act_lock::<sistema>::<ruta>` y la interfaz queda **deshabilitada** (sin botón Reiniciar). Al reabrir, se muestra **"Intento ya realizado"**.
+
+> Nota: el bloqueo es por **navegador/dispositivo** (localStorage). Para permitir nuevos intentos, el docente puede borrar el almacenamiento del sitio o modificar el índice/orden de las actividades en el JSON (cambia la clave lógica).
+
+## Publicación rápida (GitHub Pages)
+1) Sube todos los archivos a la raíz del repositorio.  
+2) **Settings → Pages**: `Deploy from a branch` → `main` → `/ (root)`.  
+3) Espera 1–2 minutos y abre la URL de Pages.
 
 ## Estructura
 ```
@@ -13,6 +24,7 @@ Este proyecto carga **actividades interactivas** desde archivos **JSON** por sis
    ├─ hidrosfera.jpg | hidrosfera.pdf
    ├─ geosfera.jpg   | geosfera.pdf
    ├─ biosfera.jpg   | biosfera.pdf
+   ├─ hotspots_rio.jpg
    └─ actividades/
       ├─ atmosfera.json
       ├─ hidrosfera.json
@@ -20,57 +32,11 @@ Este proyecto carga **actividades interactivas** desde archivos **JSON** por sis
       └─ biosfera.json
 ```
 
-## Formato de actividades (JSON)
-Cada archivo JSON debe ser un **array** de actividades. Tipos soportados:
-
-### 1) Opción múltiple (`multiple`)
-```json
-{
-  "type": "multiple",
-  "titulo": "Capas de la atmósfera",
-  "descripcion": "¿En qué capa se encuentra la mayor parte del clima?",
-  "pregunta": "La mayor parte de los fenómenos meteorológicos ocurren en...",
-  "opciones": [
-    { "texto": "Estratosfera", "correcta": false },
-    { "texto": "Mesosfera",   "correcta": false },
-    { "texto": "Troposfera",  "correcta": true  },
-    { "texto": "Termosfera",  "correcta": false }
-  ]
-}
-```
-
-### 2) Verdadero/Falso (`truefalse`)
-```json
-{
-  "type": "truefalse",
-  "titulo": "Ozono",
-  "afirmacion": "La capa de ozono se encuentra principalmente en la estratosfera.",
-  "correcta": true
-}
-```
-
-### 3) Ordenar pasos (`order`)
-```json
-{
-  "type": "order",
-  "titulo": "Ciclo del agua",
-  "descripcion": "Ordena las etapas principales del ciclo del agua.",
-  "pasos": ["Evaporación", "Condensación", "Precipitación", "Escorrentía/Infiltración"]
-}
-```
-
-> **Nota**: Los archivos deben ser **JSON válidos** (comillas dobles, `true/false/null` en minúscula, sin comentarios).
-
-## Dónde editar
-- Edita los archivos en `assets/actividades/*.json` para cambiar/agregar actividades por sistema.
-- No es necesario tocar el código JS para actualizar el contenido.
-
-## Publicación en GitHub Pages
-1. Sube todo el contenido al repositorio (raíz).
-2. En **Settings → Pages**: Source = `Deploy from a branch`, `main`, folder `/ (root)`.
-3. Espera 1–2 minutos y abre la URL que muestra **Pages**.
-
-## Problemas comunes
-- **404** en recursos: verifica nombres y rutas exactas (sensible a may/min).
-- **JSON inválido**: usa un validador JSON si es necesario.
-- **Caché**: prueba en ventana privada o presiona Ctrl+F5.
+## Formatos JSON (resumen)
+- **multiple**: `pregunta`, `opciones:[{texto,correcta}]`  
+- **truefalse**: `afirmacion`, `correcta:true/false`  
+- **order**: `pasos:[...]`  
+- **match**: `pares:[{a,b},...]`  
+- **cloze**: `texto:"... {{respuesta|alternativa}} ..."`  
+- **hotspots**: `imagen`, `zones:[{x,y,w,h,label}]` en **%**, `labels:[...]`  
+- **bank**: `n`, `items:[actividades mixtas]`  

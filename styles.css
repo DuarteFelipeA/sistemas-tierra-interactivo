@@ -26,6 +26,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .pdf-box iframe{width:100%;height:100%;border:0}
 
 .btn{display:inline-block;margin-top:.8rem;background:var(--btn);color:var(--btn-text);text-decoration:none;padding:.6rem 1rem;border-radius:8px;font-weight:700}
+.primary{background:var(--btn);color:var(--btn-text);border:none;padding:.45rem .9rem;border-radius:8px;cursor:pointer;font-weight:700}
+.secondary{background:#2a3d66;color:#d4e5ff;border:1px solid #35517a;padding:.45rem .9rem;border-radius:8px;cursor:pointer}
 
 /* === Modal === */
 .modal{position:fixed;inset:0;display:none;z-index:1000}
@@ -58,7 +60,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .activity p{margin:.2rem 0;color:#cfe2ff}
 .activity a{color:#8dd8ff}
 
-/* Interacciones */
+/* Interacciones comunes */
 .quiz{display:grid;gap:.5rem;margin-top:.6rem}
 .quiz .option{display:flex;gap:.5rem;align-items:flex-start;background:#0e1b2e;border:1px solid #133563;padding:.5rem;border-radius:8px}
 .quiz .option input[type=radio]{margin-top:.2rem}
@@ -76,4 +78,19 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .order-handle{background:#243b55;color:#dfe7ff;border:none;border-radius:6px;padding:.25rem .5rem;cursor:grab}
 .order-controls{display:flex;gap:.4rem;margin-top:.5rem}
 
-.site-footer{padding:1rem;text-align:center;color:var(--muted)}
+/* Emparejar */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.6rem}
+.match .left .row, .match .right .row{background:#0e1b2e;border:1px solid #133563;border-radius:8px;padding:.5rem;margin:.3rem 0}
+.match .left select{width:100%;margin-top:.3rem;background:#0b1f3b;border:1px solid #2d4a7c;color:#e9f1ff;border-radius:8px;padding:.4rem}
+
+/* Cloze */
+.cloze p{line-height:1.8}
+.cloze input[type=text]{min-width:120px;padding:.35rem .5rem;border-radius:6px;border:1px solid #2d4a7c;background:#0b1f3b;color:#e9f1ff}
+
+/* Hotspots */
+.hotspots{position:relative;background:#0b1f3b;border:1px solid #133563;border-radius:12px;overflow:hidden}
+.hotspots img{display:block;width:100%;height:auto}
+.hotspots .zone{position:absolute;border:2px dashed rgba(255,255,255,.35);border-radius:8px}
+.hotspots .label{position:absolute;cursor:grab;background:#243b55;color:#dfe7ff;padding:.3rem .5rem;border-radius:999px;border:1px solid #35517a;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.hotspots .label.assigned{background:#5bc0be;color:#001b1b}
+.hotspots-controls{display:flex;gap:.4rem;margin-top:.6rem}
