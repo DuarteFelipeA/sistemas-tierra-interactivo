@@ -1,15 +1,15 @@
 // ====== Utils ======
 const qs  = (s, el=document) => el.querySelector(s);
 const qsa = (s, el=document) => [...el.querySelectorAll(s)];
-const norm = (str) => (str||'').toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const norm = (str) => (str||'').toString().trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const lockKey = (sysId, idPath) => `act_lock::${sysId}::${idPath}`;
 
 // ====== Datos base de los sistemas ======
 const SYSTEMS = [
-  {id:'atmosfera',nombre:'Atmósfera',color:'#4FC3F7',imagen:'assets/atmosfera.jpg',pdf:'assets/atmosfera.pdf',chips:['Troposfera','Estratosfera','Mesosfera','Termosfera','Exosfera'],subsistemas:[{titulo:'Troposfera',texto:'Capa más baja, donde ocurre el clima y se concentra el vapor de agua.'},{titulo:'Estratosfera',texto:'Contiene la capa de ozono, filtra radiación UV.'},{titulo:'Mesosfera',texto:'Quema la mayoría de meteoros; temperaturas muy bajas.'},{titulo:'Termosfera',texto:'Alta energía solar; auroras y órbitas de satélites bajos.'},{titulo:'Exosfera',texto:'Transición al espacio; gases muy dispersos.'}]},
-  {id:'hidrosfera',nombre:'Hidrosfera',color:'#29B6F6',imagen:'assets/hidrosfera.jpg',pdf:'assets/hidrosfera.pdf',chips:['Océanos','Aguas continentales','Aguas subterráneas','Criosfera','Vapor de agua'],subsistemas:[{titulo:'Océanos',texto:'Regulan clima y almacenan calor; grandes reservorios de carbono.'},{titulo:'Aguas continentales',texto:'Ríos, lagos y humedales: ciclo del agua y hábitats cruciales.'},{titulo:'Aguas subterráneas',texto:'Acuíferos que abastecen consumo y riego; vulnerables a contaminación.'},{titulo:'Criosfera',texto:'Hielo y glaciares; reflejan radiación (albedo) y regulan nivel del mar.'},{titulo:'Vapor de agua',texto:'Gas de efecto invernadero clave; motor del clima y precipitación.'}]},
-  {id:'geosfera',nombre:'Geosfera',color:'#FFCA28',imagen:'assets/geosfera.jpg',pdf:'assets/geosfera.pdf',chips:['Corteza','Manto','Núcleo','Tectónica de placas','Relieve'],subsistemas:[{titulo:'Corteza',texto:'Capa sólida superficial; continental y oceánica.'},{titulo:'Manto',texto:'Rocoso y convectivo; impulsa el movimiento de placas.'},{titulo:'Núcleo',texto:'Externo líquido e interno sólido; genera campo magnético.'},{titulo:'Tectónica de placas',texto:'Sismicidad, vulcanismo y formación de montañas.'},{titulo:'Relieve',texto:'Modelado por procesos internos y externos (erosión, sedimentación).'}]},
-  {id:'biosfera',nombre:'Biosfera',color:'#66BB6A',imagen:'assets/biosfera.jpg',pdf:'assets/biosfera.pdf',chips:['Ecosistemas','Biomas','Biodiversidad','Ciclos biogeoquímicos'],subsistemas:[{titulo:'Ecosistemas',texto:'Interacciones entre seres vivos y ambiente físico.'},{titulo:'Biomas',texto:'Grandes regiones con clima y comunidades típicas (bosque, desierto, tundra).'},{titulo:'Biodiversidad',texto:'Variedad genética, de especies y ecosistemas; base de resiliencia.'},{titulo:'Ciclos biogeoquímicos',texto:'Ciclos del carbono, nitrógeno, fósforo; conectan todos los sistemas.'}]}
+  {id:'atmosfera',nombre:'Atmósfera',color:'#4FC3F7',imagen:'assets/atmosfera.jpg',pdf:'assets/atmosfera.pdf',pdfEstudiante:'assets/estudiantes/atmosfera.pdf',chips:['Troposfera','Estratosfera','Mesosfera','Termosfera','Exosfera'],subsistemas:[{titulo:'Troposfera',texto:'Capa más baja, donde ocurre el clima y se concentra el vapor de agua.'},{titulo:'Estratosfera',texto:'Contiene la capa de ozono, filtra radiación UV.'},{titulo:'Mesosfera',texto:'Quema la mayoría de meteoros; temperaturas muy bajas.'},{titulo:'Termosfera',texto:'Alta energía solar; auroras y órbitas de satélites bajos.'},{titulo:'Exosfera',texto:'Transición al espacio; gases muy dispersos.'}]},
+  {id:'hidrosfera',nombre:'Hidrosfera',color:'#29B6F6',imagen:'assets/hidrosfera.jpg',pdf:'assets/hidrosfera.pdf',pdfEstudiante:'assets/estudiantes/hidrosfera.pdf',chips:['Océanos','Aguas continentales','Aguas subterráneas','Criosfera','Vapor de agua'],subsistemas:[{titulo:'Océanos',texto:'Regulan clima y almacenan calor; grandes reservorios de carbono.'},{titulo:'Aguas continentales',texto:'Ríos, lagos y humedales: ciclo del agua y hábitats cruciales.'},{titulo:'Aguas subterráneas',texto:'Acuíferos que abastecen consumo y riego; vulnerables a contaminación.'},{titulo:'Criosfera',texto:'Hielo y glaciares; reflejan radiación (albedo) y regulan nivel del mar.'},{titulo:'Vapor de agua',texto:'Gas de efecto invernadero clave; motor del clima y precipitación.'}]},
+  {id:'geosfera',nombre:'Geosfera',color:'#FFCA28',imagen:'assets/geosfera.jpg',pdf:'assets/geosfera.pdf',pdfEstudiante:'assets/estudiantes/geosfera.pdf',chips:['Corteza','Manto','Núcleo','Tectónica de placas','Relieve'],subsistemas:[{titulo:'Corteza',texto:'Capa sólida superficial; continental y oceánica.'},{titulo:'Manto',texto:'Rocoso y convectivo; impulsa el movimiento de placas.'},{titulo:'Núcleo',texto:'Externo líquido e interno sólido; genera campo magnético.'},{titulo:'Tectónica de placas',texto:'Sismicidad, vulcanismo y formación de montañas.'},{titulo:'Relieve',texto:'Modelado por procesos internos y externos (erosión, sedimentación).'}]},
+  {id:'biosfera',nombre:'Biosfera',color:'#66BB6A',imagen:'assets/biosfera.jpg',pdf:'assets/biosfera.pdf',pdfEstudiante:'assets/estudiantes/biosfera.pdf',chips:['Ecosistemas','Biomas','Biodiversidad','Ciclos biogeoquímicos'],subsistemas:[{titulo:'Ecosistemas',texto:'Interacciones entre seres vivos y ambiente físico.'},{titulo:'Biomas',texto:'Grandes regiones con clima y comunidades típicas (bosque, desierto, tundra).'},{titulo:'Biodiversidad',texto:'Variedad genética, de especies y ecosistemas; base de resiliencia.'},{titulo:'Ciclos biogeoquímicos',texto:'Ciclos del carbono, nitrógeno, fósforo; conectan todos los sistemas.'}]}
 ];
 
 // ====== Modal ======
@@ -161,7 +161,7 @@ function renderActivityCard(act, idx, sysId, idPrefix='act'){
     let idxBlank = 0; const answers = [];
     const html = raw.replace(/\{\{([^}]+)\}\}/g, (m,grp)=>{
       const opts = grp.split('|').map(s=>s.trim()); answers.push(opts);
-      const i = idxBlank++; return `<input type=\"text\" data-i=\"${i}\" placeholder=\"Respuesta\" />`;
+      const i = idxBlank++; return `<input type="text" data-i="${i}" placeholder="Respuesta" />`;
     });
     ui.innerHTML = `<div class="cloze"><p>${html}</p></div><div class="form-actions"><button class="primary" data-check>Comprobar</button></div><div class="feedback" aria-live="polite"></div>`;
     const fb = qs('.feedback', ui);
@@ -259,7 +259,28 @@ function openModalFor(systemId){
   modalEl.setAttribute('aria-hidden', 'false');
 
   modalBody.innerHTML = `
-    <header class=\"modal-header\">\n      <img src=\"${sys.imagen}\" alt=\"${sys.nombre}\" />\n      <div>\n        <h3 id=\"modalTitle\" class=\"modal-title\" style=\"color:${sys.color}\">${sys.nombre}</h3>\n        <div class=\"chips\">${sys.chips.map(c => `<span class=\\\"chip\\\">${c}</span>`).join('')}</div>\n      </div>\n    </header>\n    <div class=\"modal-tabs\" role=\"tablist\">\n      <button role=\"tab\" class=\"modal-tab active\" aria-selected=\"true\" data-panel=\"info\">Información</button>\n      <button role=\"tab\" class=\"modal-tab\" aria-selected=\"false\" data-panel=\"actividades\">Actividades</button>\n      <a class=\"btn\" target=\"_blank\" rel=\"noopener\" href=\"${sys.pdf}\">PDF del sistema ↗</a>\n    </div>\n\n    <section id=\"panel-info\" class=\"modal-panel active\" role=\"tabpanel\" aria-label=\"Información\">\n      <div class=\"subsystems\">\n        ${sys.subsistemas.map(sbs => `<article class=\\\"card\\\"><h4>${sbs.titulo}</h4><p>${sbs.texto}</p></article>`).join('')}\n      </div>\n    </section>\n\n    <section id=\"panel-actividades\" class=\"modal-panel\" role=\"tabpanel\" aria-label=\"Actividades\">\n      <div id=\"activityList\" class=\"activity-list\" aria-live=\"polite\"></div>\n    </section>`;
+    <header class="modal-header">
+      <img src="${sys.imagen}" alt="${sys.nombre}" />
+      <div>
+        <h3 id="modalTitle" class="modal-title" style="color:${sys.color}">${sys.nombre}</h3>
+        <div class="chips">${sys.chips.map(c => `<span class=\"chip\">${c}</span>`).join('')}</div>
+      </div>
+    </header>
+    <div class="modal-tabs" role="tablist">
+      <button role="tab" class="modal-tab active" aria-selected="true" data-panel="info">Información</button>
+      <button role="tab" class="modal-tab" aria-selected="false" data-panel="actividades">Actividades</button>
+      <a class="btn" target="_blank" rel="noopener" href="${sys.pdfEstudiante}">PDF ↗</a>
+    </div>
+
+    <section id="panel-info" class="modal-panel active" role="tabpanel" aria-label="Información">
+      <div class="subsystems">
+        ${sys.subsistemas.map(sbs => `<article class=\"card\"><h4>${sbs.titulo}</h4><p>${sbs.texto}</p></article>`).join('')}
+      </div>
+    </section>
+
+    <section id="panel-actividades" class="modal-panel" role="tabpanel" aria-label="Actividades">
+      <div id="activityList" class="activity-list" aria-live="polite"></div>
+    </section>`;
 
   qsa('.modal-tab[role="tab"]', modalBody).forEach(btn => {
     const panel = btn.getAttribute('data-panel');
@@ -281,13 +302,11 @@ qs('.modal-backdrop').addEventListener('click', closeModal);
 modalCloseBtn.addEventListener('click', closeModal);
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modalEl.getAttribute('aria-hidden')==='false'){ closeModal(); }});
 
-// Hotspots (ya sea círculos o polígonos del cono)
 qsa('.hotspot').forEach(h => {
   h.addEventListener('click', () => openModalFor(h.getAttribute('data-system')));
   h.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openModalFor(h.getAttribute('data-system')); }});
 });
 
-// Tabs de Material docente
 qsa('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     qsa('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
@@ -299,3 +318,49 @@ qsa('.tab').forEach(tab => {
 });
 
 document.querySelector('#year').textContent = new Date().getFullYear();
+
+// --- Tooltip y animación de revelado del SVG ---
+const tooltipEl = qs('#svgTooltip');
+const svgWrap = qs('.svg-wrapper');
+
+function setTooltipPosition(x, y){
+  // mantener dentro del contenedor
+  const r = svgWrap.getBoundingClientRect();
+  const pad = 8;
+  let left = Math.min(Math.max(x, pad), r.width - pad);
+  let top = Math.min(Math.max(y, pad), r.height - pad);
+  tooltipEl.style.left = left + 'px';
+  tooltipEl.style.top = top + 'px';
+}
+
+function showTooltipFor(h, evt){
+  if(!tooltipEl) return;
+  const name = h.getAttribute('data-name') || h.getAttribute('data-system') || '';
+  tooltipEl.textContent = name;
+  tooltipEl.setAttribute('aria-hidden','false');
+  if(evt && evt.clientX){
+    const rect = svgWrap.getBoundingClientRect();
+    setTooltipPosition(evt.clientX - rect.left, evt.clientY - rect.top - 12);
+  } else {
+    // fallback: center of element
+    const elRect = h.getBoundingClientRect();
+    const rect = svgWrap.getBoundingClientRect();
+    setTooltipPosition((elRect.left + elRect.right)/2 - rect.left, elRect.top - rect.top - 12);
+  }
+}
+
+function hideTooltip(){ if(!tooltipEl) return; tooltipEl.setAttribute('aria-hidden','true'); }
+
+qsa('.hotspot').forEach(h => {
+  h.addEventListener('mouseenter', (e) => showTooltipFor(h, e));
+  h.addEventListener('mousemove', (e) => showTooltipFor(h, e));
+  h.addEventListener('mouseleave', hideTooltip);
+  h.addEventListener('focus', (e) => showTooltipFor(h));
+  h.addEventListener('blur', hideTooltip);
+});
+
+// Animación de entrada: quitar clase preload tras carga
+window.addEventListener('load', ()=>{
+  const svg = qs('.earth-svg');
+  if(svg) setTimeout(()=> svg.classList.remove('preload'), 90);
+});
